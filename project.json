@@ -1,0 +1,12 @@
+{
+  "name": "collectSpotPrices",
+  "description": "This function collect prices of spot instance.",
+  "role": "arn:aws:iam::<AWS ACCOUNT>:role/lambda-collect-spot-prices",
+  "runtime": "nodejs4.3",
+  "handler": "lib.default",
+  "timeout": 180,
+  "hooks": {
+    "build": "cp ../../package.json . && npm install --production && babel src -d lib",
+    "clean": "rm -rf lib package.json"
+  }
+}
