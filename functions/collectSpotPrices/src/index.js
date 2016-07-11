@@ -50,8 +50,8 @@ export default apexjs(async (event, context) => {
     'DayOfWeek',
     'Hours',
     'Minutes',
-    'Secondes',
-    'Millisecondes',
+    'Seconds',
+    'Milliseconds',
   ].join(',');
 
   const priceHistoryLines = [
