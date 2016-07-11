@@ -1,5 +1,6 @@
 import apexjs from 'apex.js';
 import AWS    from 'aws-sdk';
+import uuid   from 'node-uuid';
 
 import 'babel-polyfill';
 
@@ -11,7 +12,7 @@ export default apexjs(async (event, context) => {
   const s3     = new AWS.S3({region});
 
   const params = {
-    StartTime: (new Date(new Date() - (event.offset || 3600000))),
+    StartTime: (new Date(new Date().getTime() - (event.offset || 3600000))),
   };
 
   const priceHistory = await (async () => {
@@ -35,13 +36,47 @@ export default apexjs(async (event, context) => {
     return data;
   })();
 
+  const firstLine = [
+    'UUIDv4',
+    'SpotPrice',
+    'InstanceType',
+    'ProductDescription',
+    'AvailabilityZone',
+    'Time',
+    'Timestamp',
+    'Year',
+    'Month',
+    'Day',
+    'DayOfWeek',
+    'Hours',
+    'Minutes',
+    'Secondes',
+    'Millisecondes',
+  ].join(',');
+
   const priceHistoryLines = [
-    'InstanceType,ProductDescription,SpotPrice,Timestamp,AvailabilityZone',
+    firstLine,
   ];
 
   priceHistory.forEach(data => {
     priceHistoryLines.push(
-      `${data.InstanceType},${data.ProductDescription},${data.SpotPrice},${data.Timestamp.toJSON()},${data.AvailabilityZone}`
+      [
+        uuid.v4(),
+        data.SpotPrice,
+        data.InstanceType,
+        data.ProductDescription,
+        data.AvailabilityZone,
+        data.Timestamp.toJSON(),
+        data.Timestamp.getTime(),
+        data.Timestamp.getFullYear(),
+        data.Timestamp.getMonth() + 1,
+        data.Timestamp.getDate(),
+        data.Timestamp.toString().match(/^[^\s]+/)[0],
+        data.Timestamp.getHours(),
+        data.Timestamp.getMinutes(),
+        data.Timestamp.getSeconds(),
+        data.Timestamp.getMilliseconds(),
+      ].join(',')
     );
   });
 
@@ -49,7 +84,7 @@ export default apexjs(async (event, context) => {
 
   const putObjectResults = await s3.putObject({
     Bucket:      event.bucket,
-    Key:         `${new Date().getTime()}.csv`,
+    Key:         `${event.objectPrefix}${new Date().getTime()}.csv`,
     Body:        priceHistoryCSV,
     ContentType: 'text/csv',
   }).promise();

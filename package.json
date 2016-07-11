@@ -37,6 +37,7 @@
   "dependencies": {
     "apex.js": "^2.0.0",
     "aws-sdk": "^2.4.3",
-    "babel-polyfill": "^6.9.1"
+    "babel-polyfill": "^6.9.1",
+    "node-uuid": "^1.4.7"
   }
 }
